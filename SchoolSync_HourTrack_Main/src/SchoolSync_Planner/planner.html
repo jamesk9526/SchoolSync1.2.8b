@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Homeschool Planner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 8px 12px;
+      margin: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      outline: none;
+      color: #fff;
+      background-color: #4CAF50;
+      border: none;
+      border-radius: 5px;
+      box-shadow: 0 4px #357d3e;
+    }
+
+    .button:hover {
+      background-color: #45a049;
+    }
+
+    .button:active {
+      background-color: #357d3e;
+      box-shadow: 0 2px #357d3e;
+      transform: translateY(2px);
+    }
+  </style>
+</head>
+<body>
+  <h1>Homeschool Planner</h1>
+
+  <div id="calendar"></div>
+
+  <div id="notes">
+    <h2>Notes</h2>
+    <textarea id="notesTextArea" rows="6" cols="50"></textarea>
+    <br>
+    <button class="button" onclick="saveData()">Save Data</button>
+    <button class="button" onclick="exportToCSV()">Export to CSV</button>
+    <button class="button" onclick="exportToPDF()">Export to PDF</button>
+  </div>
+
+  <script>
+    // Calendar data
+    var calendarData = {};
+
+    // Load data from storage
+    function loadData() {
+      var storedData = localStorage.getItem('homeschoolPlannerData');
+      if (storedData) {
+        calendarData = JSON.parse(storedData);
+      }
+    }
+
+    // Save data to storage
+    function saveData() {
+      var notesTextArea = document.getElementById('notesTextArea');
+      var currentDate = new Date().toLocaleDateString();
+      calendarData[currentDate] = notesTextArea.value;
+      localStorage.setItem('homeschoolPlannerData', JSON.stringify(calendarData));
+      alert('Data saved successfully.');
+    }
+
+    // Export data to CSV format
+    function exportToCSV() {
+      var csvContent = 'Date,Notes\n';
+      for (var date in calendarData) {
+        var notes = calendarData[date].replace(/"/g, '""');
+        csvContent += '"' + date + '","' + notes + '"\n';
+      }
+
+      var link = document.createElement('a');
+      link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent));
+      link.setAttribute('download', 'homeschool_planner.csv');
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Export data to PDF format
+    function exportToPDF() {
+      // Generate PDF using a PDF generation library (e.g., jsPDF, pdfmake)
+      // Implementation depends on the chosen library
+      alert('PDF export not implemented.');
+    }
+
+    // Initialize calendar and load data
+    function initializeCalendar() {
+      var calendarContainer = document.getElementById('calendar');
+      var currentDate = new Date();
+
+      for (var i = 0; i < 7; i++) {
+        var date = new Date(currentDate);
+        date.setDate(date.getDate() + i);
+
+        var dateString = date.toISOString().slice(0, 10);
+        calendarData[dateString] = '';
+
+        var dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' });
+        var dayOfMonth = date.toLocaleDateString('en-US', { day: 'numeric' });
+
+        var calendarItem = document.createElement('div');
+        calendarItem.innerHTML = '<h3>' + dayOfWeek + '</h3><p>' + dayOfMonth + '</p>';
+
+        calendarItem.addEventListener('click', function () {
+          var selectedDate = this.getAttribute('data-date');
+          document.getElementById('notesTextArea').value = calendarData[selectedDate];
+        });
+
+        calendarItem.setAttribute('data-date', dateString);
+        calendarItem.style.border = '1px solid #ddd';
+        calendarItem.style.padding = '8px';
+        calendarItem.style.textAlign = 'center';
+        calendarItem.style.cursor = 'pointer';
+
+        calendarContainer.appendChild(calendarItem);
+      }
+    }
+
+    // Entry point
+    loadData();
+    initializeCalendar();
+  </script>
+</body>
+</html>
